@@ -1,21 +1,23 @@
-import { colors } from "../ui/colors";
-import { printError, warn } from "../ui/messages";
+import { colors } from "../utils/colors";
+import { EXIT_KEY } from "../utils/constants";
+import { printError, warn } from "./output";
 import { printBanner, printMenu } from "./menu";
-import { addCityFlow } from "../cities/addCity";
-import { deleteCityFlow } from "../cities/deleteCity";
-import { setDefaultCityFlow } from "../cities/setDefaultCity";
-import { toggleUnits } from "../settings/units";
-import { showAllCities, showDefaultCity } from "../weather/currentWeather";
-import { showWeeklyForecast } from "../weather/weeklyForecast";
-import { PromptClosedError } from "../ui/prompt";
+import { addCityFlow } from "../actions/addCity";
+import { removeCityFlow } from "../actions/removeCity";
+import { setDefaultCityFlow } from "../actions/setDefaultCity";
+import { listCities } from "../actions/listCities";
+import { toggleUnits } from "../actions/toggleUnits";
+import { showAllCities, showDefaultCity } from "../actions/getWeather";
+import { showWeeklyForecast } from "../actions/weeklyForecast";
+import { PromptClosedError } from "./input";
 import type { AppState } from "../types";
-import type { Prompt } from "../ui/prompt";
+import type { Prompt } from "./input";
 
 /**
  * Ejecuta una opción del menú. Para agregar una funcionalidad nueva:
- *  1. Crea su handler (idealmente en la feature correspondiente).
+ *  1. Crea su handler en `src/actions/`.
  *  2. Regístralo en `COMMANDS` con la tecla del menú.
- *  3. Añade su fila en `printMenu`.
+ *  3. Añade su fila en `MENU_OPTIONS` (`presentation/menu.ts`).
  */
 type Command = (state: AppState, prompt: Prompt) => Promise<void>;
 
@@ -23,16 +25,18 @@ const COMMANDS: Record<string, Command> = {
   "1": (state) => showDefaultCity(state),
   "2": (state) => showAllCities(state),
   "3": (state, prompt) => addCityFlow(state, prompt),
-  "4": (state, prompt) => deleteCityFlow(state, prompt),
+  "4": (state, prompt) => removeCityFlow(state, prompt),
   "5": (state, prompt) => setDefaultCityFlow(state, prompt),
-  "6": (state, prompt) => showWeeklyForecast(state, prompt),
+  "6": (state) => {
+    listCities(state);
+    return Promise.resolve();
+  },
+  "7": (state, prompt) => showWeeklyForecast(state, prompt),
   "8": (state) => {
     toggleUnits(state);
     return Promise.resolve();
   },
 };
-
-const EXIT_KEY = "9";
 
 export async function runApp(state: AppState, prompt: Prompt): Promise<void> {
   try {

@@ -1,7 +1,6 @@
 import { fetchJson } from "./client";
+import { FORECAST_BASE } from "../utils/constants";
 import type { DailyForecast, ForecastResponse } from "../types";
-
-const FORECAST_BASE = "https://api.open-meteo.com/v1/forecast";
 
 export async function getCurrentWeather(
   latitude: number,

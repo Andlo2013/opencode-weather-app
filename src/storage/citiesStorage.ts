@@ -1,4 +1,20 @@
-import type { AppState, City, Coordinates, GeocodingResult } from "../types";
+import { readConfig, writeConfig } from "./configFile";
+import type { AppState, City } from "../types";
+
+/** Ciudades guardadas y ciudad por defecto, tal como están en disco. */
+export function loadCitiesState(): Pick<AppState, "cities" | "defaultCity"> {
+  const { cities, defaultCity } = readConfig();
+  return { cities, defaultCity };
+}
+
+/**
+ * Persiste ciudades y default sobre el config, conservando el resto
+ * (unidades) tal como está en disco.
+ */
+export function saveCitiesState(state: Pick<AppState, "cities" | "defaultCity">): void {
+  const config = readConfig();
+  writeConfig({ ...config, cities: state.cities, defaultCity: state.defaultCity });
+}
 
 export function cityKey(city: City): string {
   return `${city.name}|${city.admin1 ?? ""}|${city.country ?? ""}`.toLowerCase();
@@ -16,7 +32,7 @@ export function isDuplicate(state: AppState, city: City): boolean {
   );
 }
 
-/** Agrega una ciudad. Devuelve `false` si está vacía o ya existe. */
+/** Agrega una ciudad en memoria. Devuelve `false` si está vacía o ya existe. */
 export function addCity(state: AppState, city: City): boolean {
   if (!city.name.trim() || isDuplicate(state, city)) {
     return false;
@@ -25,7 +41,7 @@ export function addCity(state: AppState, city: City): boolean {
   return true;
 }
 
-/** Elimina por índice y limpia la ciudad por defecto si coincidía. */
+/** Elimina por índice en memoria y limpia la ciudad por defecto si coincidía. */
 export function removeCityAt(state: AppState, index: number): City | null {
   if (index < 0 || index >= state.cities.length) {
     return null;
@@ -44,21 +60,4 @@ export function removeCityAt(state: AppState, index: number): City | null {
 
 export function findCityByName(state: AppState, name: string): City | null {
   return state.cities.find((city) => sameName(city.name, name)) ?? null;
-}
-
-export function hasCoordinates(
-  city: City
-): city is City & Coordinates {
-  return typeof city.latitude === "number" && typeof city.longitude === "number";
-}
-
-export function fromGeocoding(result: GeocodingResult): City {
-  const city: City = {
-    name: result.name,
-    latitude: result.latitude,
-    longitude: result.longitude,
-  };
-  if (result.country) city.country = result.country;
-  if (result.admin1) city.admin1 = result.admin1;
-  return city;
 }

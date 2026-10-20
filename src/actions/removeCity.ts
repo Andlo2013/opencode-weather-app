@@ -1,11 +1,11 @@
-import { info, printError, success } from "../ui/messages";
-import { removeCityAt } from "./store";
-import { selectSavedCity } from "./select";
-import { saveState } from "../storage/state";
+import { info, printError, success } from "../presentation/output";
+import { selectSavedCity } from "../presentation/input";
+import { removeCityAt, saveCitiesState } from "../storage/citiesStorage";
 import type { AppState } from "../types";
-import type { Prompt } from "../ui/prompt";
+import type { Prompt } from "../presentation/input";
 
-export async function deleteCityFlow(state: AppState, prompt: Prompt): Promise<void> {
+/** Opción 4: elegir una ciudad guardada, confirmar y eliminarla. */
+export async function removeCityFlow(state: AppState, prompt: Prompt): Promise<void> {
   if (state.cities.length === 0) {
     info("No hay ciudades guardadas para eliminar.");
     return;
@@ -34,7 +34,7 @@ export async function deleteCityFlow(state: AppState, prompt: Prompt): Promise<v
   }
 
   try {
-    saveState(state);
+    saveCitiesState(state);
   } catch (cause) {
     printError(cause);
     return;

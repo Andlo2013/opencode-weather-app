@@ -1,10 +1,14 @@
-import { info, printError, success } from "../ui/messages";
-import { selectSavedCity } from "./select";
-import { saveState } from "../storage/state";
+import { info, printError, success } from "../presentation/output";
+import { selectSavedCity } from "../presentation/input";
+import { saveCitiesState } from "../storage/citiesStorage";
 import type { AppState } from "../types";
-import type { Prompt } from "../ui/prompt";
+import type { Prompt } from "../presentation/input";
 
-export async function setDefaultCityFlow(state: AppState, prompt: Prompt): Promise<void> {
+/** Opción 5: marcar una ciudad guardada como la por defecto. */
+export async function setDefaultCityFlow(
+  state: AppState,
+  prompt: Prompt
+): Promise<void> {
   if (state.cities.length === 0) {
     info("No hay ciudades guardadas. Usa la opción 3 para buscar y agregar una.");
     return;
@@ -22,7 +26,7 @@ export async function setDefaultCityFlow(state: AppState, prompt: Prompt): Promi
 
   state.defaultCity = city.name;
   try {
-    saveState(state);
+    saveCitiesState(state);
   } catch (cause) {
     printError(cause);
     return;

@@ -7,6 +7,7 @@ El objetivo de esta aplicación es que creemos una aplicación de consola que pi
 - Ingresar el nombre de una ciudad.
 - Guardar la ciudad por defecto.
 - Registrar varias otras ciudades para buscar el clima en esas otras ciudades.
+- Listar las ciudades guardadas.
 - Ver el pronóstico de los próximos 7 días.
 
 ## Stack
@@ -39,14 +40,12 @@ Código en `src/`, organizado por funcionalidad (ver `AGENTS.md` para el detalle
 ```
 src/
   index.ts        # entry
-  types.ts
-  app/            # menú y bucle principal
-  ui/             # colores, prompt, spinner, formato
-  api/            # geocoding y forecast
-  storage/        # persistencia del estado
-  cities/         # gestión de ciudades
-  weather/        # clima actual y pronóstico
-  settings/       # ajustes (unidades)
+  actions/        # casos de uso: getWeather, addCity, removeCity, setDefaultCity, listCities...
+  presentation/   # menú, bucle, salida, entrada (único readline) y spinner
+  storage/        # persistencia: config.json (ciudades + ajustes)
+  types/          # tipos compartidos (City, Weather, AppState, MenuOption)
+  api/            # geocoding y weather (OpenMeteo)
+  utils/          # format, constants, colors
 ```
 
 ## Datos / persistencia
@@ -84,7 +83,8 @@ Esta es la apariencia que deseamos crear
   3. Buscar y agregar ciudad
   4. Eliminar ciudad
   5. Establecer ciudad default
-  6. Pronóstico 7 días
+  6. Listar ciudades guardadas
+  7. Pronóstico 7 días
   8. Ajustes (°C)
   9. Salir
 ═══════════════════════════════════════

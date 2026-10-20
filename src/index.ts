@@ -1,12 +1,14 @@
-import { runApp } from "./app/loop";
-import { loadState } from "./storage/state";
-import { printError } from "./ui/messages";
-import { createPrompt, PromptClosedError } from "./ui/prompt";
+import { runApp } from "./presentation/loop";
+import { loadCitiesState } from "./storage/citiesStorage";
+import { loadUnits } from "./storage/settingsStorage";
+import { printError } from "./presentation/output";
+import { createPrompt, PromptClosedError } from "./presentation/input";
+import type { AppState } from "./types";
 
 async function main(): Promise<void> {
   const prompt = createPrompt();
   try {
-    const state = loadState();
+    const state: AppState = { ...loadCitiesState(), units: loadUnits() };
     await runApp(state, prompt);
   } catch (cause) {
     if (!(cause instanceof PromptClosedError)) {

@@ -1,25 +1,5 @@
 export type Units = "C" | "F";
 
-export interface Coordinates {
-  latitude: number;
-  longitude: number;
-}
-
-export interface City {
-  name: string;
-  country?: string;
-  admin1?: string;
-  /** Opcional: las ciudades migradas desde el formato antiguo solo tienen `name`. */
-  latitude?: number;
-  longitude?: number;
-}
-
-export interface AppState {
-  defaultCity: string | null;
-  cities: City[];
-  units: Units;
-}
-
 export interface GeocodingResult {
   id: number;
   name: string;

@@ -3,14 +3,18 @@ import { dirname, join } from "path";
 import { statePath } from "./paths";
 import type { AppState, City, Units } from "../types";
 
-const DEFAULT_STATE: AppState = {
-  defaultCity: null,
-  cities: [],
-  units: "C",
-};
+/**
+ * Núcleo de persistencia: un único `config.json` compartido por todos los
+ * módulos de storage. `citiesStorage` y `settingsStorage` leen/escriben a
+ * través de `readConfig`/`writeConfig` (read-modify-write) para que un
+ * guardado de un lado nunca pise los datos del otro.
+ */
 
 /** Archivo de estado de versiones anteriores, guardado junto al ejecutable. */
 const LEGACY_FILE = ".weather.json";
+
+/** Evita repetir el warning de config inválido más de una vez por ejecución. */
+let warnedInvalidConfig = false;
 
 function isUnits(value: unknown): value is Units {
   return value === "C" || value === "F";
@@ -95,14 +99,15 @@ function migrateLegacyState(): AppState | null {
   }
 
   try {
-    saveState(migrated);
+    writeConfig(migrated);
   } catch {
     // Si no se puede escribir, al menos devolvemos el estado en memoria.
   }
   return migrated;
 }
 
-export function loadState(): AppState {
+/** Lee el `config.json` completo, migrando el formato legacy si aplica. */
+export function readConfig(): AppState {
   const path = statePath();
   if (!existsSync(path)) {
     return migrateLegacyState() ?? emptyState();
@@ -113,13 +118,15 @@ export function loadState(): AppState {
     return parsed;
   }
 
-  console.warn(
-    `Estado inválido en ${path}, usando valores por defecto (${DEFAULT_STATE.units}°).`
-  );
+  if (!warnedInvalidConfig) {
+    console.warn(`Estado inválido en ${path}, usando valores por defecto (C°).`);
+    warnedInvalidConfig = true;
+  }
   return emptyState();
 }
 
-export function saveState(state: AppState): void {
+/** Escribe el `config.json` completo con un estado ya validado. */
+export function writeConfig(state: AppState): void {
   const path = statePath();
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, `${JSON.stringify(state, null, 2)}\n`, "utf-8");

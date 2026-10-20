@@ -1,4 +1,4 @@
-import { colors, colorsEnabled } from "./colors";
+import { colors, colorsEnabled } from "../utils/colors";
 
 const FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 const INTERVAL_MS = 80;
