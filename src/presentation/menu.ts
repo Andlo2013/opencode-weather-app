@@ -21,7 +21,7 @@ export const MENU_OPTIONS: MenuOption[] = [
   { key: "7", label: "Pronóstico 7 días" },
   {
     key: "8",
-    label: "Ajustes Unidad",
+    label: "Ajustes",
     detail: (state) => (state.units === "C" ? "°C" : "°F"),
   },
   { key: "9", label: "Salir" },
