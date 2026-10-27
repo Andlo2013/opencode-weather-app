@@ -19,7 +19,11 @@ export const MENU_OPTIONS: MenuOption[] = [
   { key: "5", label: "Establecer ciudad default" },
   { key: "6", label: "Listar ciudades guardadas" },
   { key: "7", label: "Pronóstico 7 días" },
-  { key: "8", label: "Ajustes", detail: (state) => (state.units === "C" ? "°C" : "°F") },
+  {
+    key: "8",
+    label: "Ajustes Unidad",
+    detail: (state) => (state.units === "C" ? "°C" : "°F"),
+  },
   { key: "9", label: "Salir" },
 ];
 
