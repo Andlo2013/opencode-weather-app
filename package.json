@@ -6,6 +6,8 @@
   "scripts": {
     "start": "bun run src/index.ts",
     "dev": "bun --watch src/index.ts",
+    "test": "bun test",
+    "prebuild": "bun test",
     "build": "bun build --compile src/index.ts --outfile weather",
     "typecheck": "bun --bun tsc --noEmit"
   },
