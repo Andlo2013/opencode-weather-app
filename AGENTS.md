@@ -58,6 +58,12 @@ src/
     colors.ts                  # ANSI helpers (NO_COLOR / TTY aware)
 ```
 
+## Releases
+- `.github/workflows/release.yml` runs on push to `main` (and `workflow_dispatch`).
+- Version source of truth: `version` in `package.json`; the tag is `v<version>`.
+- If the tag already exists the job exits without building or publishing (idempotent).
+- Publishes a single asset, `weather-windows-x64.exe`, from `bun run build` (which runs tests via `prebuild`), created with the preinstalled `gh` CLI — no third-party release actions.
+
 ## Persistence
 - State file: `~/.config/weather-cli/config.json` on all platforms (single JSON shared by `citiesStorage` and `settingsStorage`; each save is read-modify-write so one side never clobbers the other).
 - Overrides: `WEATHER_CLI_CONFIG_DIR` (full dir) then `XDG_CONFIG_HOME` (if set); otherwise `~/.config/weather-cli`.

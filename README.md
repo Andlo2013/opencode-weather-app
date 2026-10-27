@@ -61,6 +61,18 @@ bun run typecheck  # verificar tipos
 bun run build      # compilar binario -> weather (weather.exe en Windows)
 ```
 
+## Releases
+
+El release se publica automáticamente con GitHub Actions (`.github/workflows/release.yml`):
+
+1. Sube el número de `version` en `package.json` (semver).
+2. Haz commit y push a `main`.
+3. El workflow crea el tag `v<version>` y la release, adjuntando el binario
+   `weather-windows-x64.exe` compilado con `bun run build`.
+
+Si el tag `v<version>` ya existe, el workflow no hace nada (no hay releases duplicadas).
+También puedes lanzarlo a mano desde la pestaña **Actions → Release → Run workflow**.
+
 ## Colores
 
 - **Cyan**: menú y etiquetas.

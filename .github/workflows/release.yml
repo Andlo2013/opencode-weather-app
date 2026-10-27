@@ -1,0 +1,83 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Tag + binario Windows
+    runs-on: windows-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout (con historial y tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Leer versión de package.json
+        id: version
+        shell: bash
+        run: |
+          version=$(node -p "require('./package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+
+      - name: Comprobar si el tag ya existe
+        id: check
+        shell: bash
+        run: |
+          tag="${{ steps.version.outputs.tag }}"
+          if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            echo "El tag $tag ya existe: no se publica nada."
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "El tag $tag no existe: se publicará la release."
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Bun
+        if: steps.check.outputs.exists == 'false'
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Instalar dependencias
+        if: steps.check.outputs.exists == 'false'
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck
+        if: steps.check.outputs.exists == 'false'
+        run: bun run typecheck
+
+      # `build` ejecuta `prebuild` (bun test) antes de compilar.
+      - name: Compilar binario
+        if: steps.check.outputs.exists == 'false'
+        run: bun run build
+
+      - name: Preparar asset
+        if: steps.check.outputs.exists == 'false'
+        shell: bash
+        run: |
+          mkdir -p dist
+          mv weather.exe dist/weather-windows-x64.exe
+
+      - name: Crear tag y release
+        if: steps.check.outputs.exists == 'false'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          gh release create "$TAG" dist/weather-windows-x64.exe \
+            --target "$GITHUB_SHA" \
+            --title "$TAG" \
+            --generate-notes
